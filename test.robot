@@ -17,7 +17,7 @@ Library                OperatingSystem
 Executing kzb_player
     [Documentation]    kzb_player running
     Enable Ssh Logging    ssh.log
-	Write              cd /nfs/integration_test/fb_test
+	Write              cd /nfs/integration_test/egl_test
     ${kzb_player}=     Open Connection And Log In
     Run Keyword If  '${HOST}'=='192.168.0.30'  Write  export GRAPHICS_ROOT=/usr/lib/graphics/iMX6X
     Run Keyword If  '${HOST}'=='192.168.0.30'  Write  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH
