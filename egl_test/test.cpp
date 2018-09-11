@@ -1,20 +1,30 @@
-#include <EGL/egl.h>
-#include <GLES2/gl2.h>
+#include <GLES/egl.h>
+#include <GLES/gl.h>
 
 #include <stdio.h>
 #include <unistd.h>
 
+
 int main(void)
 {
-    EGLNativeDisplayType native_display = fbGetDisplayByIndex(0);
-    printf("Got display 0x%x\n", (intptr_t)native_display);
-
     int width, height;
-    fbGetDisplayGeometry(native_display, &width, &height);
-    printf("Got geometry %dx%d\n", width, height);
+    EGLNativeDisplayType native_display;
+    EGLNativeWindowType native_window;
 
-    EGLNativeWindowType native_window = fbCreateWindow(native_display, 0, 0, 0, 0);
-    printf("Got window 0x%x\n", (intptr_t)native_window);
+    /* =========================================================================== */
+    /* Native Windowing System adapter                                             */
+    /* =========================================================================== */
+
+    native_display = fbGetDisplayByIndex(0); // Vivante fbdev api
+    printf("Got native display 0x%x\n", (unsigned int)native_display);
+  
+    fbGetDisplayGeometry(native_display, &width, &height); // Vivante fbdev api
+    printf("Got display geometry %dx%d\n", width, height);
+
+    native_window = fbCreateWindow(native_display, 0, 0, 0, 0); // Vivante fbdev api
+    printf("Got native window 0x%x\n", (unsigned int)native_window);
+
+    /* =========================================================================== */
 
     EGLBoolean ret;
     ret = eglBindAPI(EGL_OPENGL_ES_API);
@@ -34,7 +44,7 @@ int main(void)
         printf("Error 0x%x\n", error);
         return -1;
     }
-    printf("Got EGL display 0x%x\n", (intptr_t)display);
+    printf("Got EGL display 0x%x\n", (unsigned int)display);
 
     EGLint major, minor;
     ret = eglInitialize(display, &major, &minor);
@@ -121,68 +131,41 @@ int main(void)
                 //continue;
             }
         }
-        else
-        {
-            printf(" -> SUCCESS\n");
-        }
-
-        if(i < num_configs - 1)
-        {
-            eglDestroySurface(display, surface);
-        }
+        eglDestroySurface(display, surface);
+        printf(" -> SUCCESS\n");
         //break;
     }
 
-    const EGLint context_attrib_list_es2[] =
+    const EGLint context_attrib_list[] =
     {
-        EGL_NONE,
+        //EGL_NONE,
         EGL_CONTEXT_CLIENT_VERSION, 2,
         EGL_NONE
     };
-
-
-    EGLContext context = eglCreateContext(display, configs[54], EGL_NO_CONTEXT, context_attrib_list_es2);
-    //EGLContext context = eglCreateContext(display, configs[i], EGL_NO_CONTEXT, context_attrib_list_es2);
+    EGLContext context = eglCreateContext(display, configs[i], EGL_NO_CONTEXT, context_attrib_list);
     if (context == EGL_NO_CONTEXT)
     {
-        printf("Could not get es2 context.\n");
         EGLint error = eglGetError();
-        printf("eglCreateContext returned error Error 0x%x\n", error);
+        printf("Error 0x%x\n", error);
         return -1;
-
     }
-    printf("Got context.\n");
-
-
-
+    printf("Got context\n");
 
     ret = eglMakeCurrent(display, surface, surface, context);
     if (ret == EGL_FALSE)
     {
         EGLint error = eglGetError();
-        printf("eglMakeCurrent returned Error 0x%x\n", error);
+        printf("Error 0x%x\n", error);
         return -1;
     }
-    printf("Made current.\n");
+    printf("Made current\n");
 
     sleep(2);
 
     glClearColor(1.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
     glFlush();
-    ret = eglSwapBuffers(display, surface);
-    if(ret == EGL_BAD_SURFACE)
-    {
-        EGLint error = eglGetError();
-        printf("eglSwapBuffers EGL_BAD_SURFACE : Error 0x%x\n", error);
-        return -1;
-    }
-    if(ret == EGL_NOT_INITIALIZED)
-    {
-        EGLint error = eglGetError();
-        printf("eglSwapBuffers EGL_NOT_INITIALIZED : Error 0x%x\n", error);
-        return -1;
-    }
+    eglSwapBuffers(display, surface);
     sleep(2);
 
     glClearColor(0.0, 1.0, 0.0, 1.0);
@@ -225,6 +208,8 @@ int main(void)
         return -1;
     }
     printf("Terminated\n");
+
+   // TODO: close native window & display
 
     return 0;
 }

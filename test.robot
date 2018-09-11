@@ -1,10 +1,5 @@
 *** Settings ***
-Documentation          This example demonstrates executing commands on a remote machine
-...                    and getting their output and the return code.
-...
-...                    Notice how connections are handled as part of the suite setup and
-...                    teardown. This saves some time when executing several test cases.
-
+Documentation          Integration test result
 Library                SSHLibrary
 Library                OperatingSystem
 
@@ -23,7 +18,9 @@ Executing kzb_player
     Run Keyword If  '${HOST}'=='192.168.0.30'  Write  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH
     Run Keyword If  '${HOST}'=='192.168.0.26'  Write  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/sdcard:/nfs/Release
     Run Keyword If  '${HOST}'=='192.168.0.17'  Write  export XDG_RUNTIME_DIR=/var/run/user/0
+
     Run Keyword If  '${HOST}'=='192.168.0.16'  Write              ./linux_imx6_armhf
+    Run Keyword If  '${HOST}'=='192.168.0.30'  Write              ./qnx660_screen_arm
     ${info}=            Read     delay=5
     Log To Console     \n${info}
     Close All Connections

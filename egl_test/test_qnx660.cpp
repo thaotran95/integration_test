@@ -3,19 +3,29 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <screen/screen.h>
 
 int main(void)
 {
-    /*EGLNativeDisplayType native_display = fbGetDisplayByIndex(0);
-    printf("Got display 0x%x\n", (unsigned int)native_display);
-
     int width, height;
-    fbGetDisplayGeometry(native_display, &width, &height);
-    printf("Got geometry %dx%d\n", width, height);
+    EGLConfig egl_conf = (EGLConfig)0;
+    EGLNativeDisplayType native_display;
+    EGLNativeWindowType native_window;
 
-    EGLNativeWindowType native_window = fbCreateWindow(native_display, 0, 0, 0, 0);
-    printf("Got window 0x%x\n", (unsigned int)native_window);*/
- 
+    /* =========================================================================== */
+    /* Native Windowing System adapter                                             */
+    /* =========================================================================== */
+
+    screen_context_t screen_ctx;
+    if (screen_create_context(&screen_ctx, 0)) {
+	perror("screen_context_create");
+    }
+    screen_window_t screen_win;
+    if (screen_create_window(&screen_win, screen_ctx)) {
+	perror("screen_create_window");
+    }
+    /* =========================================================================== */
+
     EGLBoolean ret;
     ret = eglBindAPI(EGL_OPENGL_ES_API);
     if (ret == EGL_FALSE)
@@ -26,8 +36,8 @@ int main(void)
     }
     printf("Bound API\n");
 
-    //EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-    EGLDisplay display = eglGetDisplay(native_display);
+    EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    //EGLDisplay display = eglGetDisplay(native_display);
     if (display == EGL_NO_DISPLAY)
     {
         EGLint error = eglGetError();
@@ -35,6 +45,7 @@ int main(void)
         return -1;
     }
     printf("Got EGL display 0x%x\n", (unsigned int)display);
+    EGLSurface egl_surf = eglCreateWindowSurface(display, egl_conf, screen_win, NULL);
 
     EGLint major, minor;
     ret = eglInitialize(display, &major, &minor);
@@ -198,6 +209,8 @@ int main(void)
         return -1;
     }
     printf("Terminated\n");
+
+   // TODO: close native window & display
 
     return 0;
 }
