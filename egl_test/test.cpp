@@ -1,5 +1,5 @@
-#include <GLES/egl.h>
-#include <GLES/gl.h>
+#include <EGL/egl.h>
+#include <GLES2/gl2.h>
 
 #include <stdio.h>
 #include <unistd.h>
@@ -16,13 +16,13 @@ int main(void)
     /* =========================================================================== */
 
     native_display = fbGetDisplayByIndex(0); // Vivante fbdev api
-    printf("Got native display 0x%x\n", (unsigned int)native_display);
+    printf("Got native display 0x%x\n", (intptr_t)native_display);
   
     fbGetDisplayGeometry(native_display, &width, &height); // Vivante fbdev api
     printf("Got display geometry %dx%d\n", width, height);
 
     native_window = fbCreateWindow(native_display, 0, 0, 0, 0); // Vivante fbdev api
-    printf("Got native window 0x%x\n", (unsigned int)native_window);
+    printf("Got native window 0x%x\n", (intptr_t)native_window);
 
     /* =========================================================================== */
 
@@ -44,7 +44,7 @@ int main(void)
         printf("Error 0x%x\n", error);
         return -1;
     }
-    printf("Got EGL display 0x%x\n", (unsigned int)display);
+    printf("Got EGL display 0x%x\n", (intptr_t)display);
 
     EGLint major, minor;
     ret = eglInitialize(display, &major, &minor);
