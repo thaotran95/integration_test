@@ -20,6 +20,9 @@ Run EGL Test
     Write              cd /nfs/integration_test/egl_test
     Run Keyword If  '${HOST}'=='192.168.0.16'  Write              ./linux_imx6_armhf
     Run Keyword If  '${HOST}'=='192.168.0.30'  Write              ./qnx660_screen_arm
+    ${EGL}=            Read     delay=5
+    Log To Console     \n${EGL}
+
 
 Run Clock Test
     [Documentation]    EGL test is running
@@ -33,8 +36,8 @@ Run Clock Test
     Run Keyword If  '${HOST}'=='192.168.0.16'  Write              ./linux_imx6_armhf
     Run Keyword If  '${HOST}'=='192.168.0.30'  Write              ./qnx660_screen_arm
 
-    ${info}=            Read     delay=0.5
-    Log To Console     \n${info}
+    ${clock}=            Read     delay=0.1
+    Log To Console     \n${clock}
     Close All Connections
 	
 *** Keywords
