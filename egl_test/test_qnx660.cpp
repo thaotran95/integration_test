@@ -26,7 +26,7 @@ int main(void)
         perror("screen_create_window");
     }
     screen_event_t screen_ev; 
-    rc = screen_create_window_buffers(screen_win, 2);
+    rc = screen_create_window_buffers(screen_win, 1);
     rc = screen_create_event(&screen_ev);
 
     /* =========================================================================== */
@@ -122,7 +122,6 @@ int main(void)
                depth_size, stencil_size,
                samples, opengl_bit, surface_bit);
         fflush(stdout);
-
         surface = eglCreateWindowSurface(display,configs[i], screen_win, NULL);
         if (surface == EGL_NO_SURFACE)
         {
@@ -148,7 +147,8 @@ int main(void)
         EGL_CONTEXT_CLIENT_VERSION, 2,
         EGL_NONE
     };
-    EGLContext context = eglCreateContext(display, configs[i], EGL_NO_CONTEXT, context_attrib_list);
+    surface = eglCreateWindowSurface(display,configs[24], screen_win, NULL);
+    EGLContext context = eglCreateContext(display, configs[24], EGL_NO_CONTEXT, context_attrib_list);
     if (context == EGL_NO_CONTEXT)
     {
         EGLint error = eglGetError();
@@ -157,7 +157,7 @@ int main(void)
     }
     printf("Got context\n");
 
-    ret = eglMakeCurrent(display, surface, surface, context);
+    ret = eglMakeCurrent(display, surface, surface , context);
     if (ret == EGL_FALSE)
     {
         EGLint error = eglGetError();
