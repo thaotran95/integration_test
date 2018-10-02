@@ -7,34 +7,39 @@
 
 int main(void)
 {
-    int width, height;
-    EGLConfig egl_conf = (EGLConfig)0;
-    EGLNativeDisplayType native_display;
-    EGLNativeWindowType native_window;
+    int rc;
+    //EGLConfig egl_conf = (EGLConfig)0;
+    //EGLNativeDisplayType native_display;
+    //EGLNativeWindowType native_window;
 
     /* =========================================================================== */
     /* Native Windowing System adapter                                             */
     /* =========================================================================== */
-
     screen_context_t screen_ctx;
-    if (screen_create_context(&screen_ctx, 0)) {
-	perror("screen_context_create");
+    rc = screen_create_context(&screen_ctx, 0);
+    if (rc) {
+        perror("screen_context_create");
     }
     screen_window_t screen_win;
-    if (screen_create_window(&screen_win, screen_ctx)) {
-	perror("screen_create_window");
+    rc = screen_create_window(&screen_win, screen_ctx);
+    if (rc) {
+        perror("screen_create_window");
     }
+    screen_event_t screen_ev; 
+    rc = screen_create_window_buffers(screen_win, 2);
+    rc = screen_create_event(&screen_ev);
+
     /* =========================================================================== */
 
     EGLBoolean ret;
-    ret = eglBindAPI(EGL_OPENGL_ES_API);
+    /*ret = eglBindAPI(EGL_OPENGL_ES_API);
     if (ret == EGL_FALSE)
     {
         EGLint error = eglGetError();
         printf("Error 0x%x\n", error);
         return -1;
     }
-    printf("Bound API\n");
+    printf("Bound API\n");*/
 
     EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     //EGLDisplay display = eglGetDisplay(native_display);
@@ -44,8 +49,8 @@ int main(void)
         printf("Error 0x%x\n", error);
         return -1;
     }
+
     printf("Got EGL display 0x%x\n", (unsigned int)display);
-    EGLSurface egl_surf = eglCreateWindowSurface(display, egl_conf, screen_win, NULL);
 
     EGLint major, minor;
     ret = eglInitialize(display, &major, &minor);
@@ -118,7 +123,7 @@ int main(void)
                samples, opengl_bit, surface_bit);
         fflush(stdout);
 
-        surface = eglCreateWindowSurface(display, configs[i], native_window, NULL);
+        surface = eglCreateWindowSurface(display,configs[i], screen_win, NULL);
         if (surface == EGL_NO_SURFACE)
         {
             EGLint error = eglGetError();
@@ -147,7 +152,7 @@ int main(void)
     if (context == EGL_NO_CONTEXT)
     {
         EGLint error = eglGetError();
-        printf("Error 0x%x\n", error);
+        printf("Error EGL_NO_CONTEXT 0x%x\n", error);
         return -1;
     }
     printf("Got context\n");
@@ -156,7 +161,7 @@ int main(void)
     if (ret == EGL_FALSE)
     {
         EGLint error = eglGetError();
-        printf("Error 0x%x\n", error);
+        printf("Error EGL_FALSE 0x%x\n", error);
         return -1;
     }
     printf("Made current\n");
