@@ -27,6 +27,13 @@ int main(void)
     /* =========================================================================== */
 
     EGLBoolean ret;
+    const EGLint context_attrib_list[] =
+    {
+        //EGL_NONE,
+        EGL_CONTEXT_CLIENT_VERSION, 2,
+        EGL_NONE
+    };
+
     ret = eglBindAPI(EGL_OPENGL_ES_API);
     if (ret == EGL_FALSE)
     {
@@ -131,74 +138,69 @@ int main(void)
                 //continue;
             }
         }
+        EGLContext context = eglCreateContext(display, configs[53], EGL_NO_CONTEXT, context_attrib_list);
+        if (context == EGL_NO_CONTEXT)
+        {
+            EGLint error = eglGetError();
+            printf("Error 0x%x\n", error);
+            continue;
+        }
+        printf("Got context\n");
+
+        ret = eglMakeCurrent(display, surface, surface, context);
+        if (ret == EGL_FALSE)
+        {
+            EGLint error = eglGetError();
+            printf("Error 0x%x\n", error);
+            continue;;
+        }
+        printf("Made current\n");
+
+        sleep(1);
+
+        glClearColor(1.0, 0.0, 0.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glFlush();
+        eglSwapBuffers(display, surface);
+        sleep(1);
+
+        glClearColor(0.0, 1.0, 0.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glFlush();
+        eglSwapBuffers(display, surface);
+        sleep(1);
+
+        glClearColor(0.0, 0.0, 1.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glFlush();
+        eglSwapBuffers(display, surface);
+        sleep(1);
+
+        printf("Cleared screen\n");
+
+        ret = eglDestroyContext(display, context);
+        if (ret == EGL_FALSE)
+        {
+            EGLint error = eglGetError();
+            printf("Error 0x%x\n", error);
+            return -1;
+        }
+        printf("Destroyed context\n");
+
+        ret = eglDestroySurface(display, surface);
+        if (ret == EGL_FALSE)
+        {
+            EGLint error = eglGetError();
+            printf("Error 0x%x\n", error);
+            return -1;
+        }
+        printf("Destroyed surface\n");
+
+
         eglDestroySurface(display, surface);
         printf(" -> SUCCESS\n");
         //break;
     }
-
-    const EGLint context_attrib_list[] =
-    {
-        //EGL_NONE,
-        EGL_CONTEXT_CLIENT_VERSION, 2,
-        EGL_NONE
-    };
-    EGLContext context = eglCreateContext(display, configs[i], EGL_NO_CONTEXT, context_attrib_list);
-    if (context == EGL_NO_CONTEXT)
-    {
-        EGLint error = eglGetError();
-        printf("Error 0x%x\n", error);
-        return -1;
-    }
-    printf("Got context\n");
-
-    ret = eglMakeCurrent(display, surface, surface, context);
-    if (ret == EGL_FALSE)
-    {
-        EGLint error = eglGetError();
-        printf("Error 0x%x\n", error);
-        return -1;
-    }
-    printf("Made current\n");
-
-    sleep(2);
-
-    glClearColor(1.0, 0.0, 0.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glFlush();
-    eglSwapBuffers(display, surface);
-    sleep(2);
-
-    glClearColor(0.0, 1.0, 0.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glFlush();
-    eglSwapBuffers(display, surface);
-    sleep(2);
-
-    glClearColor(0.0, 0.0, 1.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glFlush();
-    eglSwapBuffers(display, surface);
-    sleep(6);
-
-    printf("Cleared screen\n");
-
-    ret = eglDestroyContext(display, context);
-    if (ret == EGL_FALSE)
-    {
-        EGLint error = eglGetError();
-        printf("Error 0x%x\n", error);
-        return -1;
-    }
-    printf("Destroyed context\n");
-
-    ret = eglDestroySurface(display, surface);
-    if (ret == EGL_FALSE)
-    {
-        EGLint error = eglGetError();
-        printf("Error 0x%x\n", error);
-        return -1;
-    }
-    printf("Destroyed surface\n");
 
     eglTerminate(display);
     if (ret == EGL_FALSE)
