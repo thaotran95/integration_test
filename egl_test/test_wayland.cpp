@@ -116,7 +116,7 @@ int main(void)
     const EGLint config_attrib_list[] =
     {
         EGL_RED_SIZE, 8,
-        EGL_GREEN_SIZE, 8,
+        EGL_GREEN_SIZE,8 ,
         EGL_BLUE_SIZE, 8,
         EGL_ALPHA_SIZE, 8,
         EGL_SAMPLES, 0,
@@ -135,7 +135,7 @@ int main(void)
     printf("Accepted %d configurations\n", num_configs);
 
     EGLSurface surface;
-    int i;
+    int i,count=0;
     for (i = 0; i < num_configs; ++i)
     {
         int red_size = 0, green_size = 0, blue_size = 0, alpha_size = 0;
@@ -236,6 +236,7 @@ int main(void)
 
         eglDestroySurface(display, surface);
         printf(" -> SUCCESS\n");
+        count++;
         //break;
     }
 
@@ -247,6 +248,7 @@ int main(void)
         return -1;
     }
     printf("Terminated\n");
+    printf("Number of successful configuration: %d\n",count);
 
    // TODO: close native window & display
 
