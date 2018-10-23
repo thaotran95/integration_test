@@ -46,6 +46,8 @@ int main(void)
     
     struct wl_surface *surface_wl;
     surface_wl = wl_compositor_create_surface(g_globals.compositor);
+    struct wl_shell_surface* shellSurface = wl_shell_get_shell_surface(g_globals.shell,surface_wl);
+    wl_shell_surface_set_toplevel(shellSurface);
 
     if (native_display == NULL) {
 	fprintf(stderr, "Can't connect to display\n");
@@ -205,13 +207,13 @@ int main(void)
         eglSwapBuffers(display, surface);
         sleep(1);
 
-        /*glClearColor(0.0, 0.0, 1.0, 1.0);
+        glClearColor(0.0, 0.0, 1.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
         glFlush();
         eglSwapBuffers(display, surface);
         sleep(1);
 
-        printf("Cleared screen\n");*/
+        printf("Cleared screen\n");
 
         ret = eglDestroyContext(display, context);
         if (ret == EGL_FALSE)
@@ -237,7 +239,7 @@ int main(void)
         //break;
     }
 
-    eglTerminate(display);
+    ret = eglTerminate(display);
     if (ret == EGL_FALSE)
     {
         EGLint error = eglGetError();
