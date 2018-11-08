@@ -7,4 +7,4 @@ ${TOOLCHAIN_armhf}/arm-linux-gnueabihf-g++ -o linux_imx6_armhf -DLINUX -DEGL_API
 cp linux_imx6_armhf /srv/nfsroot/integration_test/egl_test
 ${TOOLCHAIN_wayland_aarch64}/aarch64-poky-linux-g++ -o linux_wayland_aarch64 -DLINUX -DWL_EGL_PLATFORM --sysroot=/opt/sdk/poky/2.1.2/sysroots/aarch64-poky-linux/ -I /opt/sdk/poky/2.1.2/sysroots/aarch64-poky-linux/usr/include -L /opt/sdk/poky/2.1.2/sysroots/aarch64-poky-linux/usr/lib test_wayland.cpp -lGLESv2 -lEGL -lm -ldl -lwayland-client -lwayland-egl -Wall
 cp linux_wayland_aarch64 /srv/nfsroot/integration_test/egl_test
-
+g++ -o linux_x11_egl -DLINUX -DX11 -I /usr/include  -L /usr/lib/x86_64-linux-gnu test_x11.cpp -lX11 -lGLESv2 -lEGL -lm -ldl -Wall

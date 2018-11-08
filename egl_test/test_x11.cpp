@@ -1,5 +1,6 @@
-#include <wayland-client.h>
-#include <wayland-egl.h> 
+#include  <X11/Xlib.h>
+#include  <X11/Xatom.h>
+#include  <X11/Xutil.h>
 
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
@@ -9,59 +10,20 @@
 #include <cstring>
 #include <assert.h>
 
-struct globals{
-    struct wl_compositor *compositor;
-    struct wl_shell *shell;
-};
-
-struct globals g_globals;
-
-static void registry_add_object (void *data, struct wl_registry *registry, uint32_t name, const char *interface, uint32_t version) {
-    if (!strcmp(interface,"wl_compositor")) {
-        g_globals.compositor = (wl_compositor *)wl_registry_bind (registry, name, &wl_compositor_interface, 1);
-    }
-    else if (!strcmp(interface,"wl_shell")) {
-        g_globals.shell =(wl_shell *)wl_registry_bind (registry, name, &wl_shell_interface, 1);
-    }
-}
-static void registry_remove_object (void *data, struct wl_registry *registry, uint32_t name) {
-
-}
-
 int main(void)
 {
-    int width, height;
-    static struct wl_display *native_display;
-    EGLNativeWindowType native_window;
+    EGLNativeDisplayType native_display = XOpenDisplay ( NULL );
+    //printf("Got display 0x%x\n", (unsigned int)native_display);
 
-    /* =========================================================================== */
-    /* Native Windowing System adapter                                             */
-    /* =========================================================================== */
-    native_display = wl_display_connect(NULL);
-    struct wl_registry *registry = wl_display_get_registry (native_display);
-    static struct wl_registry_listener registry_listener = {&registry_add_object, &registry_remove_object};
-    wl_registry_add_listener(registry, &registry_listener, (void *) &g_globals);
-    wl_display_dispatch(native_display);
-    wl_display_roundtrip (native_display);
-    
-    struct wl_surface *surface_wl;
-    surface_wl = wl_compositor_create_surface(g_globals.compositor);
-    struct wl_shell_surface* shellSurface = wl_shell_get_shell_surface(g_globals.shell,surface_wl);
-    wl_shell_surface_set_toplevel(shellSurface);
+    Window root  =  DefaultRootWindow(native_display);
+    Window      native_window;
+    XSetWindowAttributes  swa;
+    swa.event_mask  =  ExposureMask | PointerMotionMask | KeyPressMask;
+    native_window= XCreateWindow(native_display, root, 0, 0, 800, 480, 0, CopyFromParent, InputOutput,
+              CopyFromParent, CWEventMask, &swa);
 
-    if (native_display == NULL) {
-	fprintf(stderr, "Can't connect to display\n");
-	return -1;
-    }
-    printf("connected to display\n");
-    native_window = wl_egl_window_create(surface_wl,
-			      1920, 1080);
-    if (native_window == EGL_NO_SURFACE) {
-	fprintf(stderr, "Can't create native window\n");
-	return -1;
-    } else {
-	fprintf(stderr, "Created native window\n");
-    }
+    printf("Got window 0x%x\n", (unsigned int)native_window);
+    XMapWindow ( native_display ,native_window ); 
 
     /* =========================================================================== */
 
@@ -195,7 +157,7 @@ int main(void)
 
         sleep(1);
 
-        /*glClearColor(1.0, 0.0, 0.0, 1.0);
+        glClearColor(1.0, 0.0, 0.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
         glFlush();
         eglSwapBuffers(display, surface);
@@ -211,7 +173,7 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT);
         glFlush();
         eglSwapBuffers(display, surface);
-        sleep(1);*/
+        sleep(1);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
