@@ -3,7 +3,7 @@
 #include  <X11/Xutil.h>
 
 #include <EGL/egl.h>
-#include <GLES2/gl2.h>
+#include <GLES3/gl3.h>
 
 #include <stdio.h>
 #include <unistd.h>
@@ -157,7 +157,7 @@ int main(void)
 
         sleep(1);
 
-        glClearColor(1.0, 0.0, 0.0, 1.0);
+        /*glClearColor(1.0, 0.0, 0.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
         glFlush();
         eglSwapBuffers(display, surface);
@@ -175,7 +175,175 @@ int main(void)
         eglSwapBuffers(display, surface);
         sleep(1);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT);*/
+/***************************************************************/ 
+        float vertices_cpp[] = {
+
+            -1.0f, -1.0f, 0.0f,
+
+            1.0f, -1.0f, 0.0f,
+
+            0.0f,  1.0f, 0.0f,
+
+         };
+         GLuint vbo;
+
+         glGenBuffers(1, &vbo);
+
+         glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices_cpp), vertices_cpp, GL_STATIC_DRAW);
+	 GLuint vao = 0;
+
+	 glGenVertexArrays(1, &vao);
+
+	 glBindVertexArray(vao);
+
+	 glEnableVertexAttribArray(0);
+
+	 glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+	 glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+         const char *vertexShaderSource ="#version 310 es\n"
+
+                                    "layout (location = 0) in vec3 aPos;\n"
+
+                                    "void main()\n"
+
+                                    "{\n"
+
+                                    "   gl_Position.xyz = aPos;\n"
+                                    "   gl_Position.w = 1.0;\n"
+
+                                    "}\0";
+
+
+
+        const char *fragmentShaderSource = "#version 310 es\n"
+
+                                       "precision mediump float;\n"
+
+                                       "out vec4 color;\n"
+
+                                       "void main()\n"
+
+                                       "{\n"
+
+                                       "   color = vec4(0.5,0.0,0.5,1.0);\n"
+
+                                       "}\n\0";
+
+        unsigned int vertexShader;
+
+        vertexShader = glCreateShader(GL_VERTEX_SHADER);
+
+        glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+
+        glCompileShader(vertexShader);
+	int  success;
+
+	char infoLog[512];
+
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+	if(!success)
+
+	{
+
+		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+    		for(int i=0;i<512;i++){
+
+    			printf("%c",infoLog[i]);
+   		}
+
+	}
+
+    	unsigned int fragmentShader;
+
+    	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+    	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+
+    	glCompileShader(fragmentShader);
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+	if(!success)
+
+	{
+
+    		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+    		for(int i=0;i<512;i++){
+
+    			printf("%c",infoLog[i]);
+   		}
+
+	}
+
+
+    	unsigned int shaderProgram;
+
+    	shaderProgram = glCreateProgram();
+
+    	glAttachShader(shaderProgram, vertexShader);
+
+    	glAttachShader(shaderProgram, fragmentShader);
+
+    	glLinkProgram(shaderProgram);
+
+	glGetShaderiv(shaderProgram, GL_COMPILE_STATUS, &success);
+	if(!success)
+
+	{
+
+    		glGetShaderInfoLog(shaderProgram, 512, NULL, infoLog);
+    		for(int i=0;i<512;i++){
+
+    			printf("%c",infoLog[i]);
+   		}
+
+	}
+
+
+	glClear(GL_COLOR_BUFFER_BIT);
+
+    /*if (color ==1) {
+
+        glClearColor(0.0, 0.0, shade, 1.0); // blue
+
+    }
+
+    else if (color ==2){
+
+        glClearColor(0.0, shade, 0.0, 1.0); // green
+
+    }
+
+    else if (color ==3) {
+
+        glClearColor(shade, 0.0, 0.0, 1.0); // red
+
+    }*/
+
+    	glUseProgram(shaderProgram);
+
+    	glBindVertexArray(vao);
+
+   // int vertexColorLocation = glGetUniformLocation(shaderProgram, "color");
+
+    //glUniform4f(vertexColorLocation, 0.0f, 0.5f, 0.0f, 1.0f);
+
+    	glDrawArrays(GL_TRIANGLES, 0, 3);
+
+    	glDisableVertexAttribArray(0);
+        eglSwapBuffers(display, surface);
+        sleep(1);
+
+
+    	glDeleteShader(vertexShader);
+
+    	glDeleteShader(fragmentShader);
+
+    	sleep(1);
+/*********************************************************************************************/
+
 
         printf("Cleared screen\n");
 
